@@ -1,6 +1,9 @@
 import axios from "axios";
 import React, { useReducer } from "react";
 import { BASE_URL } from "../utils/constants";
+import { useNavigate } from "react-router";
+import { addUser } from "../utils/userSlice";
+import { useDispatch } from "react-redux";
 
 const initialState = {
   emailId: "",
@@ -40,6 +43,8 @@ const reducer = (state, action) => {
 
 const SignUp = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const navigate = useNavigate();
+  const reduxDispatch = useDispatch();
 
   const handleChange = (e) => {
     dispatch({
@@ -56,7 +61,7 @@ const SignUp = () => {
         {
           emailId: state.emailId,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch({ type: "GENERATE_OTP" });
       setTimeout(() => {
@@ -73,7 +78,7 @@ const SignUp = () => {
       const res = await axios.post(
         BASE_URL + "/verify-otp",
         { emailId: state.emailId, otp: state.otp },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch({ type: "VERIFY_OTP" });
       setTimeout(() => {
@@ -95,8 +100,10 @@ const SignUp = () => {
           lastName: state.lastName,
           password: state.password,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
+      reduxDispatch(addUser(res.data));
+      navigate("/profile");
     } catch (error) {
       console.log(error);
       let err = error.response.data;
@@ -139,8 +146,8 @@ const SignUp = () => {
           </div>
         </div>
       )}
-      <div className="flex justify-center pt-20 pb-40">
-        <div className="card bg-neutral w-96 shadow-xl">
+      <div className="flex flex-1 justify-center pt-4">
+        <div className="card flex bg-neutral w-96 shadow-xl h-fit">
           <div className="card-body">
             <h2 className="card-title justify-center">Signup Here!</h2>
             <label className="form-control w-full max-w-xs">
@@ -223,6 +230,15 @@ const SignUp = () => {
                     Signup
                   </button>
                 </div>
+                <span className="m-auto">
+                  Already a user?
+                  <span
+                    className="text-cyan-400 underline cursor-pointer"
+                    onClick={() => navigate("/login")}
+                  >
+                    Go To Login
+                  </span>
+                </span>
               </>
             )}
           </div>
